@@ -8,7 +8,7 @@ import (
 
 func Direction(location_0 string, location string, angle float64) (direct string) {
 	//以正北为y正方向，以正东为x正方向
-	latitude_0_y, longitude_0_x := LocationStringToFloat(location_0)
+	longitude_0_x, latitude_0_y := LocationStringToFloat(location_0)
 	longitude_x, latitude_y := LocationStringToFloat(location)
 
 	y_0_latitude, x_0_longitude := MillierConvertion(latitude_0_y, longitude_0_x)
@@ -42,26 +42,26 @@ func Direction(location_0 string, location string, angle float64) (direct string
 	return
 }
 
-func LocationStringToFloat(location string) (a float64, b float64) {
+func LocationStringToFloat(location string) (lon, lat float64) {
 	locSlice := strings.Split(location, ",")
-	a, _ = strconv.ParseFloat(locSlice[0], 64)
-	b, _ = strconv.ParseFloat(locSlice[1], 64)
+	lon, _ = strconv.ParseFloat(locSlice[0], 64)
+	lat, _ = strconv.ParseFloat(locSlice[1], 64)
 	return
 }
 
 //经纬度坐标转换到平面坐标
 func MillierConvertion(lat float64, lon float64) (cor_x float64, cor_y float64) {
-	var L, H, W, temp, mill, x, y float64
+	var L, H, W, pi, mill, x, y float64
 	L = 6381372 * math.Pi * 2 //地球周长
 	W = L                     // 平面展开后，x轴等于周长
 	H = L / 2                 // y轴约等于周长一半
 	mill = 2.3                // 米勒投影中的一个常数，范围大约在正负2.3之间
-	temp = math.Pi
-	x = lon * temp / 180                           // 将经度从度数转换为弧度
-	y = lat * temp / 180                           // 将纬度从度数转换为弧度
-	y = 1.25 * math.Log(math.Tan(0.25*temp+0.4*y)) // 米勒投影的转换
+	pi = math.Pi
+	x = lon * pi / 180                           // 将经度从度数转换为弧度
+	y = lat * pi / 180                           // 将纬度从度数转换为弧度
+	y = 1.25 * math.Log(math.Tan(0.25*pi+0.4*y)) // 米勒投影的转换
 	// 弧度转为实际距离
-	cor_x = (W / 2) + (W/(2*math.Pi))*x
+	cor_x = (W / 2) + (W/(2*pi))*x
 	cor_y = (H / 2) - (H/(2*mill))*y
 	return
 }
@@ -72,8 +72,8 @@ type Cor struct {
 }
 
 type Loc struct {
-	Lat float64
 	Lon float64
+	Lat float64
 }
 
 func LocDistance(one, two Loc) (res float64) {

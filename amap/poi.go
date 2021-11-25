@@ -7,24 +7,33 @@ import (
 	"eia-helper/tools/request"
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/buger/jsonparser"
 	"github.com/pkg/errors"
 )
 
-func url() string {
+func url(pageSize, pageNum int) string {
 	key := config.AmapKey
 	cfg := config.SearchConfig
-	url := "https://restapi.amap.com/v3/place/around?"
+	url := "https://restapi.amap.com/v5/place/around?"
 	url += "key=" + key
 	url += "&keywords=" + cfg.Keywords
 	url += "&types=" + cfg.Types
 	url += "&location=" + cfg.Location
 	url += "&radius=" + cfg.Radius
 	url += "&sortrule=" + cfg.SortRule
-	url += "&page_size=" + cfg.PageSize
-	url += "&page_num=" + cfg.PageNum
 	url += "&show_fields=" + cfg.ShowFields
+	if pageSize != 0 {
+		url += "&page_size=" + strconv.Itoa(pageSize)
+	} else {
+		url += "&page_size=" + cfg.PageSize
+	}
+	if pageNum != 0 {
+		url += "&page_num=" + strconv.Itoa(pageNum)
+	} else {
+		url += "&page_num=" + cfg.PageNum
+	}
 	return url
 }
 
@@ -35,7 +44,8 @@ func centerLoc() (float64, float64) {
 }
 
 func GetPoiList() (res model.PoiInfo, err error) {
-	remoteUrl := url()
+	remoteUrl := url(25, 4)
+	fmt.Println("url: ", remoteUrl)
 	var resByte []byte
 	resByte, err = request.Get(remoteUrl)
 	if err != nil {
